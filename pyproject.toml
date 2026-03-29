@@ -1,0 +1,8 @@
+[project]
+name = "og-doc-scraper"
+version = "0.1.0"
+description = "Oil & Gas Document Scraper - scrapes regulatory documents from 10 US state agencies"
+requires-python = ">=3.12"
+
+[tool.uv.workspace]
+members = ["backend"]

@@ -1,14 +1,29 @@
-# Dependencies
-node_modules/
+# Python
 __pycache__/
-*.pyc
 .venv/
 venv/
+*.pyc
+.ruff_cache/
+dist/
+*.egg-info/
+
+# Node
+node_modules/
+.next/
+.turbo/
+
+# Data
+data/documents/
+data/exports/
 
 # Environment
 .env
 .env.local
 .env.docker
+*.db
+
+# Docker
+pgdata/
 
 # IDE
 .idea/
@@ -20,23 +35,8 @@ venv/
 .DS_Store
 Thumbs.db
 
-# Build
-dist/
-build/
-*.egg-info/
-.next/
-
-# Data (large files, not tracked)
-data/
-
-# Docker
-pgdata/
-
 # Worktrees
 .worktrees/
-
-# Huey
-huey.db
 
 # PaddleOCR models (downloaded at runtime)
 paddleocr_models/
@@ -49,4 +49,6 @@ cassettes/
 
 # Logs
 *.log
-.worktrees/
+
+# Build
+build/

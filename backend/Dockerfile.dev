@@ -1,0 +1,36 @@
+FROM python:3.12-slim
+
+# System dependencies for PaddleOCR and PostgreSQL client
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1 \
+    libglib2.0-0 \
+    libgomp1 \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install UV
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+WORKDIR /app
+
+# Copy dependency files first for caching
+COPY pyproject.toml ./
+
+# Install dependencies
+RUN uv sync --no-dev --no-install-project
+
+# Copy source code
+COPY . .
+
+# Install the project itself
+RUN uv sync --no-dev
+
+# Install Playwright browsers
+RUN uv run playwright install chromium --with-deps
+
+EXPOSE 8000
+
+COPY scripts/start.sh /app/scripts/start.sh
+RUN chmod +x /app/scripts/start.sh
+
+CMD ["/app/scripts/start.sh"]

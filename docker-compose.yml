@@ -1,0 +1,109 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: ogdocs-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ogdocs}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ogdocs_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-ogdocs}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/scripts/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ogdocs} -d ${POSTGRES_DB:-ogdocs}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: ogdocs-backend
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-ogdocs}:${POSTGRES_PASSWORD:-ogdocs_dev}@db:5432/${POSTGRES_DB:-ogdocs}
+      - SYNC_DATABASE_URL=postgresql://${POSTGRES_USER:-ogdocs}:${POSTGRES_PASSWORD:-ogdocs_dev}@db:5432/${POSTGRES_DB:-ogdocs}
+      - DATA_DIR=/app/data
+      - HUEY_DB_PATH=/app/data/huey.db
+      - DOCUMENTS_DIR=/data/documents
+      - LOG_LEVEL=${LOG_LEVEL:-debug}
+      - ENVIRONMENT=development
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/alembic:/app/alembic
+      - documents:/data/documents
+      - paddleocr-models:/root/.paddleocr
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: ogdocs-worker
+    entrypoint: ["uv", "run", "huey_consumer", "og_scraper.worker.huey_app", "-w", "2", "-k", "thread"]
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-ogdocs}:${POSTGRES_PASSWORD:-ogdocs_dev}@db:5432/${POSTGRES_DB:-ogdocs}
+      - SYNC_DATABASE_URL=postgresql://${POSTGRES_USER:-ogdocs}:${POSTGRES_PASSWORD:-ogdocs_dev}@db:5432/${POSTGRES_DB:-ogdocs}
+      - DATA_DIR=/app/data
+      - HUEY_DB_PATH=/app/data/huey.db
+      - DOCUMENTS_DIR=/data/documents
+      - LOG_LEVEL=${LOG_LEVEL:-debug}
+      - ENVIRONMENT=development
+    volumes:
+      - ./backend/src:/app/src
+      - documents:/data/documents
+      - paddleocr-models:/root/.paddleocr
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: ogdocs-frontend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:${BACKEND_PORT:-8000}
+      - WATCHPACK_POLLING=true
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - frontend-node-modules:/app/node_modules
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  documents:
+  paddleocr-models:
+  frontend-node-modules:
+
+networks:
+  default:
+    name: ogdocs-network
