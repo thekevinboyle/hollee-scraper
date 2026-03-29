@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Environment
+.env
+.env.local
+.env.docker
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+build/
+*.egg-info/
+.next/
+
+# Data (large files, not tracked)
+data/
+
+# Docker
+pgdata/
+
+# Worktrees
+.worktrees/
+
+# Huey
+huey.db
+
+# PaddleOCR models (downloaded at runtime)
+paddleocr_models/
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+cassettes/
+
+# Logs
+*.log
