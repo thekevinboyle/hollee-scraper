@@ -49,3 +49,4 @@ cassettes/
 
 # Logs
 *.log
+.worktrees/
