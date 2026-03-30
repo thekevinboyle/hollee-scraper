@@ -1,7 +1,7 @@
 # Oil & Gas Document Scraper - Implementation Progress
 
 **Target**: Full product, quality over speed
-**Current Phase**: Not started (orchestration complete, ready for `/start`)
+**Current Phase**: Phase 2: Document Pipeline (starting)
 
 ---
 
@@ -9,7 +9,7 @@
 
 | Phase | Status | Tasks Done | Total | Notes |
 |-------|--------|------------|-------|-------|
-| 1: Foundation | pending | 0 | 5 | Project scaffolding, Docker, DB, base frameworks |
+| 1: Foundation | done | 5 | 5 | 67 tests, all verified |
 | 2: Document Pipeline | pending | 0 | 5 | OCR, classification, extraction, confidence scoring |
 | 3: Backend API | pending | 0 | 5 | 17 REST endpoints, Huey, SSE, search, export |
 | 4: First Scrapers | pending | 0 | 4 | PA, CO, OK — prove end-to-end pipeline |
@@ -26,11 +26,11 @@
 
 | Task | Title | Status | Branch | Date | Notes |
 |------|-------|--------|--------|------|-------|
-| 1.1 | Project Scaffolding | pending | | | |
-| 1.2 | Database Schema & Migrations | pending | | | |
-| 1.3 | Base Scraper Framework | pending | | | |
-| 1.4 | FastAPI Skeleton | pending | | | |
-| 1.R | Phase 1 Regression | pending | | | |
+| 1.1 | Project Scaffolding | done | task/1-1-project-scaffolding | 2026-03-29 | 39 files, UV+npm+Docker verified |
+| 1.2 | Database Schema & Migrations | done | task/1-2-database-schema | 2026-03-29 | 8 tables, 10 states seeded, triggers verified |
+| 1.3 | Base Scraper Framework | done | task/1-3-base-scraper | 2026-03-29 | 16 files, 49 tests passing |
+| 1.4 | FastAPI Skeleton | done | task/1-4-fastapi-skeleton | 2026-03-29 | 10 files, 18 tests passing |
+| 1.R | Phase 1 Regression | done | - | 2026-03-29 | 67 tests passing, Docker+DB+API verified |
 
 ### Phase 2: Document Pipeline
 
