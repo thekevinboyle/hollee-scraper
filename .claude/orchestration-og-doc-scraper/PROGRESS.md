@@ -36,8 +36,8 @@
 
 | Task | Title | Status | Branch | Date | Notes |
 |------|-------|--------|--------|------|-------|
-| 2.1 | PDF Text Extraction & OCR | pending | | | |
-| 2.2 | Document Classification | pending | | | |
+| 2.1 | PDF Text Extraction & OCR | done | task/2-1-text-extraction | 2026-03-30 | 26 tests, PyMuPDF+PaddleOCR hybrid |
+| 2.2 | Document Classification | done | task/2-2-classification | 2026-03-30 | 57 tests, 3-strategy cascade |
 | 2.3 | Data Extraction & Normalization | pending | | | |
 | 2.4 | Validation & Confidence Scoring | pending | | | |
 | 2.R | Phase 2 Regression | pending | | | |
