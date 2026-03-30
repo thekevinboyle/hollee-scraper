@@ -1,7 +1,7 @@
 # Oil & Gas Document Scraper - Implementation Progress
 
 **Target**: Full product, quality over speed
-**Current Phase**: Phase 2: Document Pipeline (starting)
+**Current Phase**: Phase 3: Backend API (starting)
 
 ---
 
@@ -10,7 +10,7 @@
 | Phase | Status | Tasks Done | Total | Notes |
 |-------|--------|------------|-------|-------|
 | 1: Foundation | done | 5 | 5 | 67 tests, all verified |
-| 2: Document Pipeline | pending | 0 | 5 | OCR, classification, extraction, confidence scoring |
+| 2: Document Pipeline | done | 5 | 5 | 277 pipeline tests, all verified |
 | 3: Backend API | pending | 0 | 5 | 17 REST endpoints, Huey, SSE, search, export |
 | 4: First Scrapers | pending | 0 | 4 | PA, CO, OK — prove end-to-end pipeline |
 | 5: Frontend Dashboard | pending | 0 | 6 | Search, map, scrape trigger, review queue |
@@ -38,9 +38,9 @@
 |------|-------|--------|--------|------|-------|
 | 2.1 | PDF Text Extraction & OCR | done | task/2-1-text-extraction | 2026-03-30 | 26 tests, PyMuPDF+PaddleOCR hybrid |
 | 2.2 | Document Classification | done | task/2-2-classification | 2026-03-30 | 57 tests, 3-strategy cascade |
-| 2.3 | Data Extraction & Normalization | pending | | | |
-| 2.4 | Validation & Confidence Scoring | pending | | | |
-| 2.R | Phase 2 Regression | pending | | | |
+| 2.3 | Data Extraction & Normalization | done | task/2-3-extraction | 2026-03-30 | 111 tests, regex+normalizer |
+| 2.4 | Validation & Confidence Scoring | done | task/2-4-confidence-scoring | 2026-03-30 | 83 tests, 3-tier scoring+pipeline |
+| 2.R | Phase 2 Regression | done | - | 2026-03-30 | 277 pipeline tests, 344 total |
 
 ### Phase 3: Backend API
 
