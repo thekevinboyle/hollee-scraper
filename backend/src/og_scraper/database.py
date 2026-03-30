@@ -1,21 +1,22 @@
-"""Async database engine and session factory."""
+"""Async database engine and session factory.
 
-import os
+Uses SQLAlchemy 2.0 async with asyncpg driver.
+"""
+
 from collections.abc import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-DATABASE_URL = os.environ.get(
-    "DATABASE_URL",
-    "postgresql+asyncpg://ogdocs:ogdocs_dev@localhost:5432/ogdocs",
-)
+from og_scraper.config import get_settings
+
+settings = get_settings()
 
 engine = create_async_engine(
-    DATABASE_URL,
+    settings.database_url,
     pool_size=20,
     max_overflow=10,
     pool_pre_ping=True,
-    echo=os.environ.get("SQL_ECHO", "false").lower() == "true",
+    echo=settings.log_level.lower() == "trace",
 )
 
 async_session_factory = async_sessionmaker(
@@ -26,7 +27,10 @@ async_session_factory = async_sessionmaker(
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    """FastAPI dependency that yields an async database session."""
+    """FastAPI dependency that yields an async database session.
+
+    Auto-commits on success, auto-rollbacks on exception.
+    """
     async with async_session_factory() as session:
         try:
             yield session
