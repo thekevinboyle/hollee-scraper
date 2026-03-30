@@ -9,9 +9,12 @@ from .enums import (
     SortDirection,
     WellStatus,
 )
+from .export import ExportFormat
+from .map import WellMapPoint
 from .operator import OperatorDetail, OperatorSummary
 from .pagination import PaginatedResponse, PaginationParams
 from .state import StateSummary
+from .stats import DashboardStats, StateStats
 from .well import WellDetail, WellSummary
 
 __all__ = [
@@ -37,4 +40,11 @@ __all__ = [
     "OperatorDetail",
     # States
     "StateSummary",
+    # Map
+    "WellMapPoint",
+    # Stats
+    "DashboardStats",
+    "StateStats",
+    # Export
+    "ExportFormat",
 ]
