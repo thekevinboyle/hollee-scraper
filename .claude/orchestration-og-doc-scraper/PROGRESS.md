@@ -1,7 +1,7 @@
 # Oil & Gas Document Scraper - Implementation Progress
 
 **Target**: Full product, quality over speed
-**Current Phase**: Phase 3: Backend API (starting)
+**Current Phase**: Phase 4: First Scrapers (starting)
 
 ---
 
@@ -11,7 +11,7 @@
 |-------|--------|------------|-------|-------|
 | 1: Foundation | done | 5 | 5 | 67 tests, all verified |
 | 2: Document Pipeline | done | 5 | 5 | 277 pipeline tests, all verified |
-| 3: Backend API | pending | 0 | 5 | 17 REST endpoints, Huey, SSE, search, export |
+| 3: Backend API | done | 5 | 5 | 17 endpoints, 425 total tests |
 | 4: First Scrapers | pending | 0 | 4 | PA, CO, OK — prove end-to-end pipeline |
 | 5: Frontend Dashboard | pending | 0 | 6 | Search, map, scrape trigger, review queue |
 | 6: Remaining Scrapers | pending | 0 | 4 | TX, NM, ND, WY, CA, AK, LA |
@@ -49,8 +49,8 @@
 | 3.1 | Core CRUD Endpoints | done | task/3-1-crud-endpoints | 2026-03-30 | 23 new tests, 8 endpoints |
 | 3.2 | Scrape Job Endpoints & Huey Integration | done | task/3-2-scrape-huey | 2026-03-30 | 17 tests, SSE+Huey |
 | 3.3 | Review Queue & Data Correction Endpoints | done | task/3-3-review-queue | 2026-03-30 | 16 tests, approve/correct/reject |
-| 3.4 | Map & Export Endpoints | pending | | | |
-| 3.R | Phase 3 Regression | pending | | | |
+| 3.4 | Map & Export Endpoints | done | task/3-4-map-export | 2026-03-30 | 25 tests, PostGIS+streaming |
+| 3.R | Phase 3 Regression | done | - | 2026-03-30 | 425 total tests passing |
 
 ### Phase 4: First Scrapers
 
