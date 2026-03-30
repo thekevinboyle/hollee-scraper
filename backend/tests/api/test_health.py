@@ -47,9 +47,7 @@ async def test_health_db_connected(client):
     data = response.json()
     # In test environment without DB, this may show 'disconnected'
     # When DB is available, it should show 'connected'
-    assert data["db"] in ("connected", "disconnected") or data["db"].startswith(
-        "error:"
-    )
+    assert data["db"] in ("connected", "disconnected") or data["db"].startswith("error:")
 
 
 @pytest.mark.asyncio

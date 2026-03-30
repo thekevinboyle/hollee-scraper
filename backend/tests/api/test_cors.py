@@ -28,9 +28,7 @@ async def test_cors_allows_frontend_origin(client):
             "Access-Control-Request-Method": "GET",
         },
     )
-    assert (
-        response.headers.get("access-control-allow-origin") == "http://localhost:3000"
-    )
+    assert response.headers.get("access-control-allow-origin") == "http://localhost:3000"
 
 
 @pytest.mark.asyncio
@@ -43,9 +41,7 @@ async def test_cors_allows_127_origin(client):
             "Access-Control-Request-Method": "GET",
         },
     )
-    assert (
-        response.headers.get("access-control-allow-origin") == "http://127.0.0.1:3000"
-    )
+    assert response.headers.get("access-control-allow-origin") == "http://127.0.0.1:3000"
 
 
 @pytest.mark.asyncio
@@ -74,10 +70,7 @@ async def test_cors_allows_all_methods(client):
                 "Access-Control-Request-Method": method,
             },
         )
-        assert (
-            response.headers.get("access-control-allow-origin")
-            == "http://localhost:3000"
-        )
+        assert response.headers.get("access-control-allow-origin") == "http://localhost:3000"
 
 
 @pytest.mark.asyncio
