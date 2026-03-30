@@ -47,7 +47,7 @@
 | Task | Title | Status | Branch | Date | Notes |
 |------|-------|--------|--------|------|-------|
 | 3.1 | Core CRUD Endpoints | done | task/3-1-crud-endpoints | 2026-03-30 | 23 new tests, 8 endpoints |
-| 3.2 | Scrape Job Endpoints & Huey Integration | pending | | | |
+| 3.2 | Scrape Job Endpoints & Huey Integration | done | task/3-2-scrape-huey | 2026-03-30 | 17 tests, SSE+Huey |
 | 3.3 | Review Queue & Data Correction Endpoints | done | task/3-3-review-queue | 2026-03-30 | 16 tests, approve/correct/reject |
 | 3.4 | Map & Export Endpoints | pending | | | |
 | 3.R | Phase 3 Regression | pending | | | |

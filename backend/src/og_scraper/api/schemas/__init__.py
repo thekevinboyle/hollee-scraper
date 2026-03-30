@@ -9,6 +9,8 @@ from .enums import (
     SortDirection,
     WellStatus,
 )
+from .export import ExportFormat
+from .map import WellMapPoint
 from .operator import OperatorDetail, OperatorSummary
 from .pagination import PaginatedResponse, PaginationParams
 from .review import ReviewAction, ReviewItemDetail, ReviewQueueItem, ReviewStats
@@ -19,6 +21,7 @@ from .scrape import (
     ScrapeProgressEvent,
 )
 from .state import StateSummary
+from .stats import DashboardStats, StateStats
 from .well import WellDetail, WellSummary
 
 __all__ = [
@@ -54,4 +57,11 @@ __all__ = [
     "ScrapeJobSummary",
     "ScrapeJobDetail",
     "ScrapeProgressEvent",
+    # Map
+    "WellMapPoint",
+    # Stats
+    "DashboardStats",
+    "StateStats",
+    # Export
+    "ExportFormat",
 ]
