@@ -48,10 +48,12 @@ class TestStateRegistry:
         assert len(tier2) == 5
         assert all(s.tier == 2 for s in tier2)
 
-    def test_no_states_implemented_yet(self):
-        """All spider_class values should be None in Phase 1."""
+    def test_pa_is_implemented(self):
+        """PA spider should be implemented (Phase 4)."""
         implemented = get_implemented_states()
-        assert len(implemented) == 0
+        assert len(implemented) >= 1
+        pa = get_state_config("PA")
+        assert pa.spider_class == "og_scraper.scrapers.spiders.pa_spider.PennsylvaniaDEPSpider"
 
     def test_pa_is_easiest(self):
         """PA should have the lowest rate limit (easiest to scrape)."""

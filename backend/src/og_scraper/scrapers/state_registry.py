@@ -135,7 +135,7 @@ STATE_REGISTRY: dict[str, StateConfig] = {
         rate_limit_seconds=3.0,
         max_concurrent=4,
         data_formats=["CSV"],
-        spider_class=None,
+        spider_class="og_scraper.scrapers.spiders.pa_spider.PennsylvaniaDEPSpider",
         tier=2,
         notes="Easiest to scrape. All data as on-demand CSV exports.",
     ),
