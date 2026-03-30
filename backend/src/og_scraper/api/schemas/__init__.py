@@ -12,6 +12,12 @@ from .enums import (
 from .operator import OperatorDetail, OperatorSummary
 from .pagination import PaginatedResponse, PaginationParams
 from .review import ReviewAction, ReviewItemDetail, ReviewQueueItem, ReviewStats
+from .scrape import (
+    ScrapeJobCreate,
+    ScrapeJobDetail,
+    ScrapeJobSummary,
+    ScrapeProgressEvent,
+)
 from .state import StateSummary
 from .well import WellDetail, WellSummary
 
@@ -43,4 +49,9 @@ __all__ = [
     "ReviewStats",
     # States
     "StateSummary",
+    # Scrape Jobs
+    "ScrapeJobCreate",
+    "ScrapeJobSummary",
+    "ScrapeJobDetail",
+    "ScrapeProgressEvent",
 ]
