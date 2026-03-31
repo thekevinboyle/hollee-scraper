@@ -283,14 +283,32 @@ export default function DocumentsPage() {
                   </details>
                 )}
 
-                {/* Source Link */}
+                {/* Source Record Link */}
                 {docDetail.source_url && (
-                  <div className="text-xs text-muted-foreground">
-                    Source:{" "}
-                    <a href={docDetail.source_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                      {new URL(docDetail.source_url).hostname}
-                    </a>
-                  </div>
+                  <Card className="border-blue-200 bg-blue-50/30">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Source Record</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <a
+                        href={docDetail.source_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+                      >
+                        View Original Record →
+                      </a>
+                      <p className="text-xs text-muted-foreground">
+                        {docDetail.source_url.includes("pipeline.wyo.gov") && "Opens the WOGCC well record page — includes completion reports, production history, and well logs."}
+                        {docDetail.source_url.includes("occ.ok.gov") && "Opens the OCC Well Records portal — search results for permits, completions, and well files (PDFs)."}
+                        {docDetail.source_url.includes("ecmc.state.co.us") && "Opens the COGCC facility detail page — includes drilling permits, completion reports, and production data."}
+                        {docDetail.source_url.includes("conservation.ca.gov") && "Opens CalGEM WellSTAR — search for well records, permits, and production data."}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground truncate" title={docDetail.source_url}>
+                        {docDetail.source_url}
+                      </p>
+                    </CardContent>
+                  </Card>
                 )}
               </div>
             </>
