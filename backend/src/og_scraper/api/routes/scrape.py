@@ -104,7 +104,10 @@ async def list_scrape_jobs(
         query = query.where(ScrapeJob.status == status.value)
     if state:
         query = query.where(ScrapeJob.state_code == state.upper())
-    return await paginate(db, query, page, page_size)
+    result = await paginate(db, query, page, page_size)
+    # Unpack Row tuples to model instances for Pydantic serialization
+    result["items"] = [row[0] if hasattr(row, "_mapping") else row for row in result["items"]]
+    return result
 
 
 @router.get("/jobs/{job_id}", response_model=ScrapeJobDetail)
