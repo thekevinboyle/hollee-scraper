@@ -39,6 +39,7 @@ services:
       - ./backend/alembic:/app/alembic
       - documents:/data/documents
       - paddleocr-models:/root/.paddleocr
+      - huey-data:/app/data
     depends_on:
       db:
         condition: service_healthy
@@ -68,6 +69,7 @@ services:
       - ./backend/src:/app/src
       - documents:/data/documents
       - paddleocr-models:/root/.paddleocr
+      - huey-data:/app/data
     depends_on:
       db:
         condition: service_healthy
@@ -102,6 +104,7 @@ volumes:
   pgdata:
   documents:
   paddleocr-models:
+  huey-data:
   frontend-node-modules:
 
 networks:
