@@ -1,4 +1,7 @@
-const API_BASE = "/api/v1";
+const API_BASE =
+  typeof window !== "undefined"
+    ? "http://localhost:8000/api/v1"
+    : (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000") + "/api/v1";
 
 export class ApiError extends Error {
   constructor(
@@ -11,7 +14,9 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const url = `${API_BASE}${path}`;
+  // Ensure trailing slash to avoid FastAPI 307 redirects
+  const normalizedPath = path.includes("?") ? path : (path.endsWith("/") ? path : `${path}/`);
+  const url = `${API_BASE}${normalizedPath}`;
   const res = await fetch(url, {
     headers: {
       "Content-Type": "application/json",
@@ -47,8 +52,11 @@ export const api = {
     }),
 };
 
-export const fetcher = <T>(url: string): Promise<T> =>
-  fetch(url).then((res) => {
+export const fetcher = <T>(url: string): Promise<T> => {
+  // If url starts with /api, prefix with backend base
+  const fullUrl = url.startsWith("/api") ? `http://localhost:8000${url}` : url;
+  return fetch(fullUrl).then((res) => {
     if (!res.ok) throw new ApiError(res.status, res.statusText);
     return res.json();
   });
+};

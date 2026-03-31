@@ -40,7 +40,7 @@ export default function ScrapePage() {
   async function triggerScrape(stateCode: string) {
     setScraping(stateCode);
     try {
-      const job = await api.post<ScrapeJob>("/scrape", { state_code: stateCode });
+      const job = await api.post<ScrapeJob>("/scrape/", { state_code: stateCode });
       setActiveJobId(job.id);
       mutate("/api/v1/scrape/jobs?page_size=10");
     } finally {
