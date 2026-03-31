@@ -96,14 +96,34 @@ class CaliforniaCalGEMSpider(BaseOGSpider):
             yield WellItem(
                 state_code="CA",
                 api_number=self.normalize_api_number(str(api_raw)),
-                well_name=attrs.get("WellName", "") or "",
+                well_name=attrs.get("WellDesignation", "") or attrs.get("WellName", "") or "",
                 operator_name=attrs.get("OperatorName", "") or attrs.get("Operator", "") or "",
                 county=attrs.get("CountyName", "") or "",
+                field_name=attrs.get("Place", "") or "",
+                lease_name=attrs.get("LeaseName", "") or "",
                 latitude=lat,
                 longitude=lon,
                 well_status=attrs.get("WellStatus", "") or "unknown",
-                
-                metadata={k: v for k, v in attrs.items() if v is not None},
+                well_type=attrs.get("WellTypeLabel", "") or attrs.get("WellType", "") or None,
+                metadata={
+                    "well_type": attrs.get("WellType"),
+                    "well_type_label": attrs.get("WellTypeLabel"),
+                    "well_symbol": attrs.get("WellSymbol"),
+                    "well_designation": attrs.get("WellDesignation"),
+                    "well_number": attrs.get("WellNumber"),
+                    "operator_code": attrs.get("OperatorCode"),
+                    "lease_name": attrs.get("LeaseName"),
+                    "district": attrs.get("District"),
+                    "section": attrs.get("Section"),
+                    "township": attrs.get("Township"),
+                    "range": attrs.get("Range"),
+                    "base_meridian": attrs.get("BaseMeridian"),
+                    "gis_source": attrs.get("GISSource"),
+                    "spud_date": attrs.get("SpudDate"),
+                    "is_directionally_drilled": attrs.get("isDirectionallyDrilled"),
+                    "is_confidential": attrs.get("isConfidential"),
+                    "in_hpz": attrs.get("inHPZ"),
+                },
             )
             self.documents_found += 1
             self.total_fetched += 1

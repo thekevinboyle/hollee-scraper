@@ -97,8 +97,19 @@ export default function WellsPage() {
 
   const hasFilters = search || stateFilter || statusFilter || countyFilter || operatorFilter;
 
-  // Extract production-like data from metadata
+  // Extract metadata and helper for safe rendering
   const metadata = wellDetail?.metadata || {};
+  const m = (key: string): string | null => {
+    const v = metadata[key];
+    if (v === null || v === undefined || v === "") return null;
+    return String(v);
+  };
+  const mNum = (key: string): number | null => {
+    const v = metadata[key];
+    if (v === null || v === undefined) return null;
+    const n = Number(v);
+    return isNaN(n) ? null : n;
+  };
   const metadataEntries = Object.entries(metadata).filter(
     ([, v]) => v !== null && v !== "" && v !== undefined
   );
@@ -241,23 +252,127 @@ export default function WellsPage() {
                   </CardContent>
                 </Card>
 
-                {/* Source Metadata */}
-                {metadataEntries.length > 0 && (
-                  <Card>
+                {/* Production Data (WY has cumulative production) */}
+                {(mNum("cumulative_oil_bbl") || mNum("cumulative_gas_mcf") || mNum("cumulative_water_bbl")) && (
+                  <Card className="border-green-200 bg-green-50/30">
                     <CardHeader className="pb-2">
-                      <CardTitle className="text-sm">Source Data ({metadataEntries.length} fields)</CardTitle>
+                      <CardTitle className="text-sm">Cumulative Production</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <div className="max-h-60 overflow-y-auto space-y-1">
-                        {metadataEntries.map(([key, value]) => (
-                          <div key={key} className="flex justify-between text-xs py-1 border-b border-muted last:border-0">
-                            <span className="text-muted-foreground font-mono truncate mr-2">{key}</span>
-                            <span className="text-right truncate max-w-[60%]">{String(value)}</span>
-                          </div>
-                        ))}
-                      </div>
+                    <CardContent className="space-y-2 text-sm">
+                      {mNum("cumulative_oil_bbl") != null && mNum("cumulative_oil_bbl")! > 0 && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Oil</span>
+                          <span className="font-bold">{mNum("cumulative_oil_bbl")!.toLocaleString()} BBL</span>
+                        </div>
+                      )}
+                      {mNum("cumulative_gas_mcf") != null && mNum("cumulative_gas_mcf")! > 0 && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Gas</span>
+                          <span className="font-bold">{mNum("cumulative_gas_mcf")!.toLocaleString()} MCF</span>
+                        </div>
+                      )}
+                      {mNum("cumulative_water_bbl") != null && mNum("cumulative_water_bbl")! > 0 && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Water</span>
+                          <span className="font-bold">{mNum("cumulative_water_bbl")!.toLocaleString()} BBL</span>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
+                )}
+
+                {/* Geological & Depth Data */}
+                {(m("bottom_formation") || mNum("max_md") || mNum("max_tvd") || mNum("ground_elevation_ft") || wellDetail.total_depth) && (
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Geological Data</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2 text-sm">
+                      {m("bottom_formation") && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Target Formation</span>
+                          <span className="font-medium">{m("bottom_formation")}</span>
+                        </div>
+                      )}
+                      {(wellDetail.total_depth || mNum("max_md")) && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Measured Depth</span>
+                          <span>{(wellDetail.total_depth || mNum("max_md") || 0).toLocaleString()} ft</span>
+                        </div>
+                      )}
+                      {mNum("max_tvd") && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">True Vertical Depth</span>
+                          <span>{mNum("max_tvd")!.toLocaleString()} ft</span>
+                        </div>
+                      )}
+                      {mNum("ground_elevation_ft") && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Ground Elevation</span>
+                          <span>{mNum("ground_elevation_ft")!.toLocaleString()} ft</span>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Legal Location */}
+                {(m("section") || m("township") || m("range")) && (
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Legal Location</CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-sm">
+                      <span className="font-mono">
+                        {[
+                          m("quarter_quarter") && `${m("quarter_quarter")}`,
+                          m("section") && `Sec ${m("section")}`,
+                          m("township") && `T${m("township")}`,
+                          m("range") && `R${m("range")}`,
+                        ].filter(Boolean).join(", ")}
+                      </span>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* External Links */}
+                {(m("wogcc_link") || m("occ_docs_link")) && (
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">External Records</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      {m("wogcc_link") && (
+                        <a href={m("wogcc_link")!} target="_blank" rel="noopener noreferrer"
+                          className="block text-sm text-blue-600 hover:underline">
+                          View WOGCC Well Record →
+                        </a>
+                      )}
+                      {m("occ_docs_link") && (
+                        <a href={m("occ_docs_link")!} target="_blank" rel="noopener noreferrer"
+                          className="block text-sm text-blue-600 hover:underline">
+                          View OCC Well Documents →
+                        </a>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Raw Source Data (collapsed) */}
+                {metadataEntries.length > 0 && (
+                  <details className="text-sm">
+                    <summary className="cursor-pointer text-muted-foreground hover:text-foreground py-2">
+                      Raw source data ({metadataEntries.length} fields)
+                    </summary>
+                    <div className="mt-2 max-h-60 overflow-y-auto space-y-1 border rounded p-2">
+                      {metadataEntries.map(([key, value]) => (
+                        <div key={key} className="flex justify-between text-xs py-1 border-b border-muted last:border-0">
+                          <span className="text-muted-foreground font-mono truncate mr-2">{key}</span>
+                          <span className="text-right truncate max-w-[60%]">{String(value)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </details>
                 )}
 
                 {/* Documents */}

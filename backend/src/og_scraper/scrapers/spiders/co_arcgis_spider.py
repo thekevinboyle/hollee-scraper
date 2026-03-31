@@ -1,4 +1,8 @@
-"""Colorado COGCC/ECMC spider using working DNR ArcGIS endpoint."""
+"""Colorado COGCC/ECMC spider via DNR ArcGIS endpoint.
+
+Returns well data with depth (MD/TVD), field names, spud dates,
+ground elevation, and full legal location.
+"""
 
 import json
 import logging
@@ -14,8 +18,6 @@ ARCGIS_URL = "https://data.dnrgis.state.co.us/arcgis/rest/services/DNR_Public/OG
 
 
 class ColoradoArcGISSpider(BaseOGSpider):
-    """Spider for Colorado COGCC well data via DNR ArcGIS."""
-
     name = "co_arcgis"
     state_code = "CO"
     state_name = "Colorado"
@@ -40,7 +42,7 @@ class ColoradoArcGISSpider(BaseOGSpider):
     def _build_request(self, offset):
         params = {
             "where": "1=1",
-            "outFields": "API,Operator,Well_Name,Well_Num,Latitude,Longitude,Facil_Stat,Facil_Type,Field_Name,Spud_Date,Max_MD,Max_TVD,API_County",
+            "outFields": "*",
             "returnGeometry": "false",
             "resultOffset": str(offset),
             "resultRecordCount": str(self.batch_size),
@@ -70,6 +72,16 @@ class ColoradoArcGISSpider(BaseOGSpider):
             lat = attrs.get("Latitude")
             lon = attrs.get("Longitude")
 
+            # Parse epoch spud date
+            spud_date = None
+            spud_epoch = attrs.get("Spud_Date")
+            if spud_epoch and isinstance(spud_epoch, (int, float)) and spud_epoch > 0:
+                try:
+                    from datetime import date, datetime
+                    spud_date = datetime.fromtimestamp(spud_epoch / 1000).date()
+                except (ValueError, OSError):
+                    pass
+
             yield WellItem(
                 state_code="CO",
                 api_number=self.normalize_api_number(str(api_raw)),
@@ -83,7 +95,25 @@ class ColoradoArcGISSpider(BaseOGSpider):
                 well_status=attrs.get("Facil_Stat", "") or "unknown",
                 well_type=attrs.get("Facil_Type", "") or None,
                 total_depth=int(attrs["Max_MD"]) if attrs.get("Max_MD") else None,
-                metadata={k: v for k, v in attrs.items() if v is not None},
+                spud_date=spud_date,
+                metadata={
+                    "well_title": attrs.get("Well_Title"),
+                    "max_md": attrs.get("Max_MD"),
+                    "max_tvd": attrs.get("Max_TVD"),
+                    "ground_elevation_ft": attrs.get("Ground_Ele"),
+                    "facility_id": attrs.get("Facil_Id"),
+                    "facility_type": attrs.get("Facil_Type"),
+                    "facility_status": attrs.get("Facil_Stat"),
+                    "field_code": attrs.get("Field_Code"),
+                    "operator_number": attrs.get("Operat_Num"),
+                    "section": attrs.get("Section"),
+                    "township": attrs.get("Township"),
+                    "range": attrs.get("Range"),
+                    "quarter_quarter": attrs.get("Qtr_Qtr"),
+                    "meridian": attrs.get("Meridian"),
+                    "citing_type": attrs.get("Citing_Typ"),
+                    "api_label": attrs.get("API_Label"),
+                },
             )
             self.documents_found += 1
             self.total_fetched += 1
