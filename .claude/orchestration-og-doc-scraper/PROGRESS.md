@@ -56,7 +56,7 @@
 
 | Task | Title | Status | Branch | Date | Notes |
 |------|-------|--------|--------|------|-------|
-| 4.1 | Pennsylvania Scraper (GreenPort CSV) | pending | | | |
+| 4.1 | Pennsylvania Scraper (GreenPort CSV) | done | task/4-1-pa-scraper | 2026-03-30 | 56 tests, 6 report types |
 | 4.2 | Colorado Scraper (ECMC/COGCC) | pending | | | |
 | 4.3 | Oklahoma Scraper (OCC) | pending | | | |
 | 4.R | Phase 4 Regression | pending | | | |

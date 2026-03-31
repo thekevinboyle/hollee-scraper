@@ -55,6 +55,13 @@ class TestStateRegistry:
         pa = get_state_config("PA")
         assert pa.spider_class == "og_scraper.scrapers.spiders.pa_spider.PennsylvaniaDEPSpider"
 
+    def test_ok_is_implemented(self):
+        """OK spider should be implemented after Task 4.3."""
+        implemented = get_implemented_states()
+        ok_states = [s for s in implemented if s.code == "OK"]
+        assert len(ok_states) == 1
+        assert ok_states[0].spider_class == "og_scraper.scrapers.spiders.ok_spider.OklahomaOCCSpider"
+
     def test_pa_is_easiest(self):
         """PA should have the lowest rate limit (easiest to scrape)."""
         pa = get_state_config("PA")
