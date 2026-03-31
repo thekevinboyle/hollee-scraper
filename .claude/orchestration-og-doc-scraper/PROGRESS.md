@@ -1,7 +1,7 @@
 # Oil & Gas Document Scraper - Implementation Progress
 
 **Target**: Full product, quality over speed
-**Current Phase**: Phase 5: Frontend Dashboard (starting)
+**Current Phase**: Phase 6: Remaining Scrapers (starting)
 
 ---
 
@@ -13,7 +13,7 @@
 | 2: Document Pipeline | done | 5 | 5 | 277 pipeline tests, all verified |
 | 3: Backend API | done | 5 | 5 | 17 endpoints, 425 total tests |
 | 4: First Scrapers | done | 4 | 4 | PA+CO+OK scrapers, 539 total tests |
-| 5: Frontend Dashboard | pending | 0 | 6 | Search, map, scrape trigger, review queue |
+| 5: Frontend Dashboard | done | 6 | 6 | All pages built, TS clean |
 | 6: Remaining Scrapers | pending | 0 | 4 | TX, NM, ND, WY, CA, AK, LA |
 | 7: E2E Testing | pending | 0 | 4 | Comprehensive multi-angle testing |
 | **Total** | | **0** | **33** | |
@@ -66,11 +66,11 @@
 | Task | Title | Status | Branch | Date | Notes |
 |------|-------|--------|--------|------|-------|
 | 5.1 | Frontend Foundation & Layout | done | task/5-1-frontend-foundation | 2026-03-30 | shadcn/ui, sidebar, API client, types |
-| 5.2 | Search & Browse Interface | pending | | | |
-| 5.3 | Interactive Map | pending | | | |
-| 5.4 | Scrape Trigger & Progress | pending | | | |
-| 5.5 | Review Queue & Document Viewer | pending | | | |
-| 5.R | Phase 5 Regression | pending | | | |
+| 5.2 | Search & Browse Interface | done | - | 2026-03-30 | Wells+Documents tables, filters, detail panel |
+| 5.3 | Interactive Map | done | - | 2026-03-30 | Leaflet+OSM, dynamic import, viewport fetch |
+| 5.4 | Scrape Trigger & Progress | done | - | 2026-03-30 | State grid, SSE progress, history |
+| 5.5 | Review Queue & Document Viewer | done | - | 2026-03-30 | Review list, field editing, approve/correct/reject |
+| 5.R | Phase 5 Regression | done | - | 2026-03-30 | TypeScript clean, all pages render |
 
 ### Phase 6: Remaining Scrapers
 
