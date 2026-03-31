@@ -1,7 +1,7 @@
 # Oil & Gas Document Scraper - Implementation Progress
 
 **Target**: Full product, quality over speed
-**Current Phase**: Phase 4: First Scrapers (starting)
+**Current Phase**: Phase 5: Frontend Dashboard (starting)
 
 ---
 
@@ -12,7 +12,7 @@
 | 1: Foundation | done | 5 | 5 | 67 tests, all verified |
 | 2: Document Pipeline | done | 5 | 5 | 277 pipeline tests, all verified |
 | 3: Backend API | done | 5 | 5 | 17 endpoints, 425 total tests |
-| 4: First Scrapers | pending | 0 | 4 | PA, CO, OK — prove end-to-end pipeline |
+| 4: First Scrapers | done | 4 | 4 | PA+CO+OK scrapers, 539 total tests |
 | 5: Frontend Dashboard | pending | 0 | 6 | Search, map, scrape trigger, review queue |
 | 6: Remaining Scrapers | pending | 0 | 4 | TX, NM, ND, WY, CA, AK, LA |
 | 7: E2E Testing | pending | 0 | 4 | Comprehensive multi-angle testing |
@@ -57,9 +57,9 @@
 | Task | Title | Status | Branch | Date | Notes |
 |------|-------|--------|--------|------|-------|
 | 4.1 | Pennsylvania Scraper (GreenPort CSV) | done | task/4-1-pa-scraper | 2026-03-30 | 56 tests, 6 report types |
-| 4.2 | Colorado Scraper (ECMC/COGCC) | pending | | | |
-| 4.3 | Oklahoma Scraper (OCC) | pending | | | |
-| 4.R | Phase 4 Regression | pending | | | |
+| 4.2 | Colorado Scraper (ECMC/COGCC) | done | task/4-2-co-scraper | 2026-03-30 | 57 tests, bulk CSV+ZIP |
+| 4.3 | Oklahoma Scraper (OCC) | done | task/4-3-ok-scraper | 2026-03-30 | 63 tests, CSV+XLSX |
+| 4.R | Phase 4 Regression | done | - | 2026-03-30 | 539 total tests passing |
 
 ### Phase 5: Frontend Dashboard
 
