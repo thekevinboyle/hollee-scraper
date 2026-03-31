@@ -1,7 +1,7 @@
 # Oil & Gas Document Scraper - Implementation Progress
 
 **Target**: Full product, quality over speed
-**Current Phase**: Phase 6: Remaining Scrapers (starting)
+**Current Phase**: Phase 7: E2E Testing (final phase)
 
 ---
 
@@ -14,7 +14,7 @@
 | 3: Backend API | done | 5 | 5 | 17 endpoints, 425 total tests |
 | 4: First Scrapers | done | 4 | 4 | PA+CO+OK scrapers, 539 total tests |
 | 5: Frontend Dashboard | done | 6 | 6 | All pages built, TS clean |
-| 6: Remaining Scrapers | pending | 0 | 4 | TX, NM, ND, WY, CA, AK, LA |
+| 6: Remaining Scrapers | done | 4 | 4 | All 10 states, 566 total tests |
 | 7: E2E Testing | pending | 0 | 4 | Comprehensive multi-angle testing |
 | **Total** | | **0** | **33** | |
 
@@ -76,10 +76,10 @@
 
 | Task | Title | Status | Branch | Date | Notes |
 |------|-------|--------|--------|------|-------|
-| 6.1 | Texas & New Mexico Scrapers | pending | | | |
-| 6.2 | North Dakota, Wyoming & Alaska Scrapers | pending | | | |
-| 6.3 | California & Louisiana Scrapers | pending | | | |
-| 6.R | Phase 6 Regression | pending | | | |
+| 6.1 | Texas & New Mexico Scrapers | done | - | 2026-03-31 | TX CSV + NM ArcGIS |
+| 6.2 | North Dakota, Wyoming & Alaska Scrapers | done | - | 2026-03-31 | ND free tier + WY/AK ArcGIS |
+| 6.3 | California & Louisiana Scrapers | done | - | 2026-03-31 | CA WellSTAR + LA SONRIS circuit breaker |
+| 6.R | Phase 6 Regression | done | - | 2026-03-31 | 566 total tests passing |
 
 ### Phase 7: E2E Testing
 
