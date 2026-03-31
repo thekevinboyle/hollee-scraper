@@ -5,6 +5,17 @@ import { fetcher } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FileText, MapPin, AlertCircle, BarChart3 } from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 
 interface DashboardStats {
   total_wells: number;
@@ -26,17 +37,24 @@ interface DashboardStats {
   }>;
 }
 
+const PIE_COLORS = [
+  "#3b82f6",
+  "#10b981",
+  "#f59e0b",
+  "#ef4444",
+  "#8b5cf6",
+  "#ec4899",
+  "#06b6d4",
+  "#84cc16",
+];
+
 export default function DashboardPage() {
   const { data: stats } = useSWR<DashboardStats>("/api/v1/stats/", fetcher, {
     refreshInterval: 15000,
   });
 
   const statCards = [
-    {
-      title: "Total Wells",
-      icon: MapPin,
-      value: stats?.total_wells ?? "--",
-    },
+    { title: "Total Wells", icon: MapPin, value: stats?.total_wells ?? "--" },
     {
       title: "Total Documents",
       icon: FileText,
@@ -57,10 +75,32 @@ export default function DashboardPage() {
     },
   ];
 
+  const wellsByState = stats?.wells_by_state
+    ? Object.entries(stats.wells_by_state)
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value)
+    : [];
+
+  const docsByType = stats?.documents_by_type
+    ? Object.entries(stats.documents_by_type)
+        .map(([name, value]) => ({
+          name: name.replace(/_/g, " "),
+          value,
+        }))
+        .sort((a, b) => b.value - a.value)
+    : [];
+
+  const wellsByStatus = stats?.wells_by_status
+    ? Object.entries(stats.wells_by_status)
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value)
+    : [];
+
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
 
+      {/* Stat Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
         {statCards.map((stat) => (
           <Card key={stat.title}>
@@ -77,41 +117,34 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Wells by State */}
+      {/* Charts Row */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
+        {/* Wells by State Bar Chart */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium">Wells by State</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Wells by State
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            {stats?.wells_by_state &&
-            Object.keys(stats.wells_by_state).length > 0 ? (
-              <div className="space-y-2">
-                {Object.entries(stats.wells_by_state)
-                  .sort(([, a], [, b]) => b - a)
-                  .map(([state, count]) => (
-                    <div
-                      key={state}
-                      className="flex justify-between items-center"
-                    >
-                      <span className="font-mono text-sm font-bold">
-                        {state}
-                      </span>
-                      <span className="text-sm text-muted-foreground">
-                        {count.toLocaleString()} wells
-                      </span>
-                    </div>
-                  ))}
-              </div>
+            {wellsByState.length > 0 ? (
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={wellsByState}>
+                  <XAxis dataKey="name" fontSize={12} />
+                  <YAxis fontSize={12} />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             ) : (
-              <p className="text-sm text-muted-foreground">
-                No data yet — run a scrape to populate
+              <p className="text-sm text-muted-foreground py-8 text-center">
+                No data yet
               </p>
             )}
           </CardContent>
         </Card>
 
-        {/* Documents by Type */}
+        {/* Documents by Type Pie Chart */}
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium">
@@ -119,80 +152,117 @@ export default function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {stats?.documents_by_type &&
-            Object.keys(stats.documents_by_type).length > 0 ? (
-              <div className="space-y-2">
-                {Object.entries(stats.documents_by_type)
-                  .sort(([, a], [, b]) => b - a)
-                  .map(([type, count]) => (
-                    <div
-                      key={type}
-                      className="flex justify-between items-center"
-                    >
-                      <Badge variant="outline">
-                        {type.replace(/_/g, " ")}
-                      </Badge>
-                      <span className="text-sm text-muted-foreground">
-                        {count}
-                      </span>
-                    </div>
-                  ))}
-              </div>
+            {docsByType.length > 0 ? (
+              <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                  <Pie
+                    data={docsByType}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={40}
+                    outerRadius={80}
+                    dataKey="value"
+                    label={({ name, value }) => `${name} (${value})`}
+                    labelLine={false}
+                    fontSize={10}
+                  >
+                    {docsByType.map((_, index) => (
+                      <Cell
+                        key={index}
+                        fill={PIE_COLORS[index % PIE_COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
             ) : (
-              <p className="text-sm text-muted-foreground">
-                No documents yet
+              <p className="text-sm text-muted-foreground py-8 text-center">
+                No data yet
               </p>
             )}
           </CardContent>
         </Card>
 
-        {/* Recent Scrape Jobs */}
-        <Card className="md:col-span-2">
+        {/* Wells by Status */}
+        <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium">
-              Recent Scrape Jobs
+              Wells by Status
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {stats?.recent_scrape_jobs &&
-            stats.recent_scrape_jobs.length > 0 ? (
-              <div className="space-y-2">
-                {stats.recent_scrape_jobs.map((job) => (
-                  <div
-                    key={job.id}
-                    className="flex justify-between items-center text-sm"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono font-bold">
-                        {job.state_code}
-                      </span>
-                      <Badge
-                        variant={
-                          job.status === "completed"
-                            ? "default"
-                            : job.status === "failed"
-                              ? "destructive"
-                              : "secondary"
-                        }
-                      >
-                        {job.status}
-                      </Badge>
+            {wellsByStatus.length > 0 ? (
+              <div className="space-y-3">
+                {wellsByStatus.map((item) => (
+                  <div key={item.name} className="space-y-1">
+                    <div className="flex justify-between text-sm">
+                      <span className="capitalize">{item.name}</span>
+                      <span className="font-medium">{item.value}</span>
                     </div>
-                    <span className="text-muted-foreground">
-                      {job.documents_found} found &middot;{" "}
-                      {new Date(job.created_at).toLocaleString()}
-                    </span>
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-blue-500 rounded-full"
+                        style={{
+                          width: `${(item.value / (stats?.total_wells || 1)) * 100}%`,
+                        }}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">
-                No scrape jobs yet
+              <p className="text-sm text-muted-foreground py-8 text-center">
+                No data yet
               </p>
             )}
           </CardContent>
         </Card>
       </div>
+
+      {/* Recent Scrape Jobs */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm font-medium">
+            Recent Scrape Jobs
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {stats?.recent_scrape_jobs && stats.recent_scrape_jobs.length > 0 ? (
+            <div className="space-y-2">
+              {stats.recent_scrape_jobs.map((job) => (
+                <div
+                  key={job.id}
+                  className="flex justify-between items-center text-sm"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono font-bold">
+                      {job.state_code}
+                    </span>
+                    <Badge
+                      variant={
+                        job.status === "completed"
+                          ? "default"
+                          : job.status === "failed"
+                            ? "destructive"
+                            : "secondary"
+                      }
+                    >
+                      {job.status}
+                    </Badge>
+                  </div>
+                  <span className="text-muted-foreground">
+                    {job.documents_found} found &middot;{" "}
+                    {new Date(job.created_at).toLocaleString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">No scrape jobs yet</p>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

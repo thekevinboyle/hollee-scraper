@@ -4,24 +4,11 @@ import { useEffect, useState, useCallback } from "react";
 import {
   MapContainer,
   TileLayer,
-  Marker,
+  CircleMarker,
   Popup,
   useMapEvents,
 } from "react-leaflet";
-import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-
-// Fix default marker icons for webpack/next.js
-delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)
-  ._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-  iconUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-});
 
 const API_BASE = "http://localhost:8000";
 
@@ -41,6 +28,21 @@ interface Bounds {
   max_lat: number;
   min_lng: number;
   max_lng: number;
+}
+
+const STATUS_COLORS: Record<string, string> = {
+  active: "#22c55e",
+  drilling: "#3b82f6",
+  completed: "#06b6d4",
+  plugged: "#ef4444",
+  inactive: "#f59e0b",
+  shut_in: "#8b5cf6",
+  permitted: "#a855f7",
+  unknown: "#9ca3af",
+};
+
+function getColor(status: string | null): string {
+  return STATUS_COLORS[(status || "unknown").toLowerCase()] || "#9ca3af";
 }
 
 function MapEvents({
@@ -65,46 +67,81 @@ function MapEvents({
 export default function MapView() {
   const [wells, setWells] = useState<WellPin[]>([]);
   const [loading, setLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("");
 
-  const fetchWells = useCallback(async (bounds: Bounds) => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        min_lat: String(bounds.min_lat),
-        max_lat: String(bounds.max_lat),
-        min_lng: String(bounds.min_lng),
-        max_lng: String(bounds.max_lng),
-        limit: "1000",
-      });
-      const res = await fetch(
-        `${API_BASE}/api/v1/map/wells?${params}`
-      );
-      if (res.ok) {
-        const data = await res.json();
-        setWells(Array.isArray(data) ? data : []);
+  const fetchWells = useCallback(
+    async (bounds: Bounds) => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams({
+          min_lat: String(bounds.min_lat),
+          max_lat: String(bounds.max_lat),
+          min_lng: String(bounds.min_lng),
+          max_lng: String(bounds.max_lng),
+          limit: "2000",
+        });
+        if (statusFilter) params.set("well_status", statusFilter);
+        const res = await fetch(`${API_BASE}/api/v1/map/wells?${params}`);
+        if (res.ok) {
+          const data = await res.json();
+          setWells(Array.isArray(data) ? data : []);
+        }
+      } catch {
+        // Backend not available
+      } finally {
+        setLoading(false);
       }
-    } catch {
-      // Backend not available
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    [statusFilter]
+  );
 
-  // Initial load — fetch wells for the default US viewport
   useEffect(() => {
     fetchWells({ min_lat: 24, max_lat: 50, min_lng: -130, max_lng: -65 });
   }, [fetchWells]);
 
   return (
     <div className="relative">
+      {/* Controls overlay */}
+      <div className="absolute top-3 left-12 z-[1000] flex gap-2">
+        <div className="bg-white/95 shadow rounded px-3 py-1.5 text-sm font-medium">
+          {wells.length} wells
+        </div>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="bg-white/95 shadow rounded px-2 py-1 text-sm border-0"
+        >
+          <option value="">All Statuses</option>
+          {Object.keys(STATUS_COLORS).map((s) => (
+            <option key={s} value={s}>
+              {s}
+            </option>
+          ))}
+        </select>
+      </div>
+
       {loading && (
-        <div className="absolute top-2 right-2 z-[1000] bg-white/80 px-3 py-1 rounded text-sm text-muted-foreground">
-          Loading wells...
+        <div className="absolute top-3 right-3 z-[1000] bg-white/90 shadow px-3 py-1 rounded text-sm text-muted-foreground">
+          Loading...
         </div>
       )}
-      <div className="absolute top-2 left-12 z-[1000] bg-white/90 px-3 py-1 rounded text-sm font-medium">
-        {wells.length} wells
+
+      {/* Legend */}
+      <div className="absolute bottom-6 left-3 z-[1000] bg-white/95 shadow rounded p-2">
+        <p className="text-[10px] font-medium mb-1">Status</p>
+        <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
+          {Object.entries(STATUS_COLORS).map(([status, color]) => (
+            <div key={status} className="flex items-center gap-1">
+              <div
+                className="w-2.5 h-2.5 rounded-full"
+                style={{ backgroundColor: color }}
+              />
+              <span className="text-[10px] capitalize">{status}</span>
+            </div>
+          ))}
+        </div>
       </div>
+
       <MapContainer
         center={[39.8, -98.5]}
         zoom={4}
@@ -117,23 +154,65 @@ export default function MapView() {
         />
         <MapEvents onBoundsChange={fetchWells} />
         {wells.map((well) => (
-          <Marker key={well.id} position={[well.latitude, well.longitude]}>
+          <CircleMarker
+            key={well.id}
+            center={[well.latitude, well.longitude]}
+            radius={6}
+            pathOptions={{
+              color: getColor(well.well_status),
+              fillColor: getColor(well.well_status),
+              fillOpacity: 0.8,
+              weight: 1,
+            }}
+          >
             <Popup>
-              <div className="text-sm">
-                <strong>{well.well_name || "Unnamed Well"}</strong>
-                <br />
-                <span className="font-mono text-xs">{well.api_number}</span>
-                <br />
-                {well.operator_name && (
-                  <>
-                    {well.operator_name}
-                    <br />
-                  </>
-                )}
-                Status: {well.well_status || "unknown"}
+              <div className="text-sm min-w-[200px]">
+                <div className="font-bold mb-1">
+                  {well.well_name || "Unnamed Well"}
+                </div>
+                <table className="text-xs w-full">
+                  <tbody>
+                    <tr>
+                      <td className="text-muted-foreground pr-2 py-0.5">
+                        API
+                      </td>
+                      <td className="font-mono">{well.api_number}</td>
+                    </tr>
+                    {well.operator_name && (
+                      <tr>
+                        <td className="text-muted-foreground pr-2 py-0.5">
+                          Operator
+                        </td>
+                        <td>{well.operator_name}</td>
+                      </tr>
+                    )}
+                    <tr>
+                      <td className="text-muted-foreground pr-2 py-0.5">
+                        Status
+                      </td>
+                      <td className="capitalize">
+                        <span
+                          className="inline-block w-2 h-2 rounded-full mr-1"
+                          style={{
+                            backgroundColor: getColor(well.well_status),
+                          }}
+                        />
+                        {well.well_status || "unknown"}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="text-muted-foreground pr-2 py-0.5">
+                        Coords
+                      </td>
+                      <td className="font-mono">
+                        {well.latitude.toFixed(4)}, {well.longitude.toFixed(4)}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </Popup>
-          </Marker>
+          </CircleMarker>
         ))}
       </MapContainer>
     </div>
