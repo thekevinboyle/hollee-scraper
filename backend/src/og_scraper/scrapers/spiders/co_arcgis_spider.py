@@ -1,11 +1,7 @@
-"""Wyoming Oil and Gas Conservation Commission (WOGCC) spider.
-
-WY provides well data via ArcGIS MapServer and downloadable Excel files.
-"""
+"""Colorado COGCC/ECMC spider using working DNR ArcGIS endpoint."""
 
 import json
 import logging
-from datetime import datetime
 
 import scrapy
 
@@ -14,17 +10,17 @@ from og_scraper.scrapers.spiders.base import BaseOGSpider
 
 logger = logging.getLogger(__name__)
 
-ARCGIS_URL = "https://services.wygisc.org/HostGIS/rest/services/GeoHub/WOGCCActiveWells/MapServer/0/query"
+ARCGIS_URL = "https://data.dnrgis.state.co.us/arcgis/rest/services/DNR_Public/OGCC_Wells/FeatureServer/0/query"
 
 
-class WyomingWOGCCSpider(BaseOGSpider):
-    """Spider for Wyoming WOGCC ArcGIS well data."""
+class ColoradoArcGISSpider(BaseOGSpider):
+    """Spider for Colorado COGCC well data via DNR ArcGIS."""
 
-    name = "wy_wogcc"
-    state_code = "WY"
-    state_name = "Wyoming"
-    agency_name = "Wyoming Oil and Gas Conservation Commission"
-    base_url = "http://pipeline.wyo.gov"
+    name = "co_arcgis"
+    state_code = "CO"
+    state_name = "Colorado"
+    agency_name = "Energy & Carbon Management Commission (ECMC)"
+    base_url = "https://data.dnrgis.state.co.us"
 
     custom_settings = {
         "DOWNLOAD_DELAY": 2,
@@ -32,10 +28,10 @@ class WyomingWOGCCSpider(BaseOGSpider):
         "AUTOTHROTTLE_ENABLED": True,
     }
 
-    def __init__(self, *args, batch_size=1000, max_records=None, **kwargs):
+    def __init__(self, *args, batch_size=1000, max_records=None, limit=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.batch_size = int(batch_size)
-        self.max_records = int(max_records) if max_records else None
+        self.max_records = int(max_records or limit or 0) or None
         self.total_fetched = 0
 
     def start_requests(self):
@@ -44,8 +40,8 @@ class WyomingWOGCCSpider(BaseOGSpider):
     def _build_request(self, offset):
         params = {
             "where": "1=1",
-            "outFields": "*",
-            "returnGeometry": "true",
+            "outFields": "API,Operator,Well_Name,Well_Num,Latitude,Longitude,Facil_Stat,Facil_Type,Field_Name,Spud_Date,Max_MD,Max_TVD,API_County",
+            "returnGeometry": "false",
             "resultOffset": str(offset),
             "resultRecordCount": str(self.batch_size),
             "f": "json",
@@ -66,23 +62,27 @@ class WyomingWOGCCSpider(BaseOGSpider):
 
         for feature in features:
             attrs = feature.get("attributes", {})
-            geom = feature.get("geometry", {})
 
-            api_raw = attrs.get("API_NUMBER") or attrs.get("API") or ""
+            api_raw = attrs.get("API")
             if not api_raw:
                 continue
 
+            lat = attrs.get("Latitude")
+            lon = attrs.get("Longitude")
+
             yield WellItem(
-                state_code="WY",
+                state_code="CO",
                 api_number=self.normalize_api_number(str(api_raw)),
-                well_name=attrs.get("WELL_NAME", "") or attrs.get("LEASE_NAME", "") or "",
-                operator_name=attrs.get("COMPANY", "") or attrs.get("OPERATOR", "") or "",
-                county=attrs.get("COUNTY", "") or "",
-                field_name=attrs.get("FIELD_NAME", "") or "",
-                latitude=attrs.get("LATITUDE") or geom.get("y"),
-                longitude=attrs.get("LONGITUDE") or geom.get("x"),
-                well_status=attrs.get("STATUS", "") or "unknown",
-                total_depth=int(attrs["TD"]) if attrs.get("TD") else None,
+                well_name=attrs.get("Well_Name", "") or "",
+                well_number=attrs.get("Well_Num", "") or None,
+                operator_name=attrs.get("Operator", "") or "",
+                county=attrs.get("API_County", "") or "",
+                field_name=attrs.get("Field_Name", "") or "",
+                latitude=float(lat) if lat else None,
+                longitude=float(lon) if lon else None,
+                well_status=attrs.get("Facil_Stat", "") or "unknown",
+                well_type=attrs.get("Facil_Type", "") or None,
+                total_depth=int(attrs["Max_MD"]) if attrs.get("Max_MD") else None,
                 metadata={k: v for k, v in attrs.items() if v is not None},
             )
             self.documents_found += 1

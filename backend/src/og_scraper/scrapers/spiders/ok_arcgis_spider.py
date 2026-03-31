@@ -1,11 +1,7 @@
-"""Wyoming Oil and Gas Conservation Commission (WOGCC) spider.
-
-WY provides well data via ArcGIS MapServer and downloadable Excel files.
-"""
+"""Oklahoma OCC spider using working ArcGIS RBDMS endpoint."""
 
 import json
 import logging
-from datetime import datetime
 
 import scrapy
 
@@ -14,17 +10,17 @@ from og_scraper.scrapers.spiders.base import BaseOGSpider
 
 logger = logging.getLogger(__name__)
 
-ARCGIS_URL = "https://services.wygisc.org/HostGIS/rest/services/GeoHub/WOGCCActiveWells/MapServer/0/query"
+ARCGIS_URL = "https://gis.occ.ok.gov/server/rest/services/Hosted/RBDMS_WELLS/FeatureServer/220/query"
 
 
-class WyomingWOGCCSpider(BaseOGSpider):
-    """Spider for Wyoming WOGCC ArcGIS well data."""
+class OklahomaArcGISSpider(BaseOGSpider):
+    """Spider for Oklahoma OCC well data via ArcGIS RBDMS."""
 
-    name = "wy_wogcc"
-    state_code = "WY"
-    state_name = "Wyoming"
-    agency_name = "Wyoming Oil and Gas Conservation Commission"
-    base_url = "http://pipeline.wyo.gov"
+    name = "ok_arcgis"
+    state_code = "OK"
+    state_name = "Oklahoma"
+    agency_name = "Corporation Commission (OCC)"
+    base_url = "https://gis.occ.ok.gov"
 
     custom_settings = {
         "DOWNLOAD_DELAY": 2,
@@ -32,10 +28,10 @@ class WyomingWOGCCSpider(BaseOGSpider):
         "AUTOTHROTTLE_ENABLED": True,
     }
 
-    def __init__(self, *args, batch_size=1000, max_records=None, **kwargs):
+    def __init__(self, *args, batch_size=1000, max_records=None, limit=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.batch_size = int(batch_size)
-        self.max_records = int(max_records) if max_records else None
+        self.max_records = int(max_records or limit or 0) or None
         self.total_fetched = 0
 
     def start_requests(self):
@@ -44,8 +40,8 @@ class WyomingWOGCCSpider(BaseOGSpider):
     def _build_request(self, offset):
         params = {
             "where": "1=1",
-            "outFields": "*",
-            "returnGeometry": "true",
+            "outFields": "api,well_name,operator,sh_lat,sh_lon,wellstatus,welltype,county",
+            "returnGeometry": "false",
             "resultOffset": str(offset),
             "resultRecordCount": str(self.batch_size),
             "f": "json",
@@ -66,23 +62,27 @@ class WyomingWOGCCSpider(BaseOGSpider):
 
         for feature in features:
             attrs = feature.get("attributes", {})
-            geom = feature.get("geometry", {})
 
-            api_raw = attrs.get("API_NUMBER") or attrs.get("API") or ""
+            api_raw = attrs.get("api")
             if not api_raw:
                 continue
 
+            # OK API numbers come as doubles — convert to int string
+            api_str = str(int(float(api_raw)))
+
+            lat = attrs.get("sh_lat")
+            lon = attrs.get("sh_lon")
+
             yield WellItem(
-                state_code="WY",
-                api_number=self.normalize_api_number(str(api_raw)),
-                well_name=attrs.get("WELL_NAME", "") or attrs.get("LEASE_NAME", "") or "",
-                operator_name=attrs.get("COMPANY", "") or attrs.get("OPERATOR", "") or "",
-                county=attrs.get("COUNTY", "") or "",
-                field_name=attrs.get("FIELD_NAME", "") or "",
-                latitude=attrs.get("LATITUDE") or geom.get("y"),
-                longitude=attrs.get("LONGITUDE") or geom.get("x"),
-                well_status=attrs.get("STATUS", "") or "unknown",
-                total_depth=int(attrs["TD"]) if attrs.get("TD") else None,
+                state_code="OK",
+                api_number=self.normalize_api_number(api_str),
+                well_name=attrs.get("well_name", "") or "",
+                operator_name=attrs.get("operator", "") or "",
+                county=attrs.get("county", "") or "",
+                latitude=float(lat) if lat else None,
+                longitude=float(lon) if lon else None,
+                well_status=attrs.get("wellstatus", "") or "unknown",
+                well_type=attrs.get("welltype", "") or None,
                 metadata={k: v for k, v in attrs.items() if v is not None},
             )
             self.documents_found += 1
