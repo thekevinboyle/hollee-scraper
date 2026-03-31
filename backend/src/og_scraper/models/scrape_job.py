@@ -7,14 +7,14 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base, TimestampMixin, UUIDPrimaryKeyMixin
-from .enums import ScrapeJobStatus
+from .enums import ScrapeJobStatus, ScrapeJobStatusPG
 
 
 class ScrapeJob(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     __tablename__ = "scrape_jobs"
 
     state_code: Mapped[str | None] = mapped_column(VARCHAR(2), ForeignKey("states.code"), nullable=True)
-    status: Mapped[ScrapeJobStatus] = mapped_column(default=ScrapeJobStatus.PENDING, server_default="pending")
+    status: Mapped[ScrapeJobStatus] = mapped_column(ScrapeJobStatusPG, default=ScrapeJobStatus.PENDING, server_default="pending")
     job_type: Mapped[str] = mapped_column(VARCHAR(50), nullable=False, default="full", server_default="full")
     parameters: Mapped[dict] = mapped_column(JSONB, nullable=False, server_default=text("'{}'::jsonb"))
     # Progress

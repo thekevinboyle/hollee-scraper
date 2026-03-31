@@ -9,7 +9,7 @@ from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, TimestampMixin, UUIDPrimaryKeyMixin
-from .enums import WellStatus
+from .enums import WellStatus, WellStatusPG
 
 
 class Well(Base, UUIDPrimaryKeyMixin, TimestampMixin):
@@ -32,7 +32,7 @@ class Well(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     longitude: Mapped[float | None] = mapped_column(DOUBLE_PRECISION, nullable=True)
     location: Mapped[str | None] = mapped_column(Geometry("POINT", srid=4326), nullable=True)
     # Well details
-    well_status: Mapped[WellStatus] = mapped_column(default=WellStatus.UNKNOWN, server_default="unknown")
+    well_status: Mapped[WellStatus] = mapped_column(WellStatusPG, default=WellStatus.UNKNOWN, server_default="unknown")
     well_type: Mapped[str | None] = mapped_column(VARCHAR(50), nullable=True)
     spud_date: Mapped[date | None] = mapped_column(DATE, nullable=True)
     completion_date: Mapped[date | None] = mapped_column(DATE, nullable=True)

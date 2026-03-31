@@ -17,7 +17,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sse_starlette.sse import EventSourceResponse
 
 from og_scraper.api.deps import get_db
-from og_scraper.api.schemas.enums import ScrapeJobStatus
+from og_scraper.api.schemas.enums import ScrapeJobStatus as ScrapeJobStatusSchema
+from og_scraper.models.enums import ScrapeJobStatus as ScrapeJobStatusDB
 from og_scraper.api.schemas.pagination import PaginatedResponse
 from og_scraper.api.schemas.scrape import ScrapeJobCreate, ScrapeJobDetail, ScrapeJobSummary
 from og_scraper.api.utils.pagination import paginate
@@ -92,7 +93,7 @@ async def create_scrape_job(
 @router.get("/jobs", response_model=PaginatedResponse[ScrapeJobSummary])
 async def list_scrape_jobs(
     db: DbSession,
-    status: ScrapeJobStatus | None = None,
+    status: ScrapeJobStatusSchema | None = None,
     state: str | None = None,
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=50, ge=1, le=200),

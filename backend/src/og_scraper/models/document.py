@@ -8,7 +8,7 @@ from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, TimestampMixin, UUIDPrimaryKeyMixin
-from .enums import DocType, DocumentStatus
+from .enums import DocType, DocTypePG, DocumentStatus, DocumentStatusPG
 
 
 class Document(Base, UUIDPrimaryKeyMixin, TimestampMixin):
@@ -21,8 +21,8 @@ class Document(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     scrape_job_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("scrape_jobs.id", ondelete="SET NULL"), nullable=True
     )
-    doc_type: Mapped[DocType] = mapped_column(default=DocType.OTHER, server_default="other")
-    status: Mapped[DocumentStatus] = mapped_column(default=DocumentStatus.DISCOVERED, server_default="discovered")
+    doc_type: Mapped[DocType] = mapped_column(DocTypePG, default=DocType.OTHER, server_default="other")
+    status: Mapped[DocumentStatus] = mapped_column(DocumentStatusPG, default=DocumentStatus.DISCOVERED, server_default="discovered")
     # Provenance
     source_url: Mapped[str] = mapped_column(TEXT, nullable=False)
     file_path: Mapped[str | None] = mapped_column(TEXT, nullable=True)

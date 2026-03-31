@@ -1,6 +1,12 @@
-"""PostgreSQL enum types for the Oil & Gas schema."""
+"""PostgreSQL enum types for the Oil & Gas schema.
+
+The `schema` parameter on each enum must match the name used in the Alembic
+migration (001_initial_schema.py) so SQLAlchemy emits the correct CAST.
+"""
 
 import enum
+
+from sqlalchemy.dialects.postgresql import ENUM as PG_ENUM
 
 
 class DocType(enum.StrEnum):
@@ -14,6 +20,11 @@ class DocType(enum.StrEnum):
     INCIDENT_REPORT = "incident_report"
     UNKNOWN = "unknown"
     OTHER = "other"
+
+
+DocTypePG = PG_ENUM(
+    *[e.value for e in DocType], name="doc_type_enum", create_type=False
+)
 
 
 class DocumentStatus(enum.StrEnum):
@@ -32,6 +43,11 @@ class DocumentStatus(enum.StrEnum):
     EXTRACTION_FAILED = "extraction_failed"
 
 
+DocumentStatusPG = PG_ENUM(
+    *[e.value for e in DocumentStatus], name="document_status_enum", create_type=False
+)
+
+
 class ScrapeJobStatus(enum.StrEnum):
     PENDING = "pending"
     RUNNING = "running"
@@ -40,11 +56,21 @@ class ScrapeJobStatus(enum.StrEnum):
     CANCELLED = "cancelled"
 
 
+ScrapeJobStatusPG = PG_ENUM(
+    *[e.value for e in ScrapeJobStatus], name="scrape_job_status_enum", create_type=False
+)
+
+
 class ReviewStatus(enum.StrEnum):
     PENDING = "pending"
     APPROVED = "approved"
     REJECTED = "rejected"
     CORRECTED = "corrected"
+
+
+ReviewStatusPG = PG_ENUM(
+    *[e.value for e in ReviewStatus], name="review_status_enum", create_type=False
+)
 
 
 class WellStatus(enum.StrEnum):
@@ -57,3 +83,8 @@ class WellStatus(enum.StrEnum):
     SHUT_IN = "shut_in"
     TEMPORARILY_ABANDONED = "temporarily_abandoned"
     UNKNOWN = "unknown"
+
+
+WellStatusPG = PG_ENUM(
+    *[e.value for e in WellStatus], name="well_status_enum", create_type=False
+)
