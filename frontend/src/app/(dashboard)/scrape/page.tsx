@@ -3,6 +3,9 @@
 import { useState } from "react";
 import useSWR, { mutate } from "swr";
 import { api, fetcher } from "@/lib/api";
+import type { ScrapeJob } from "@/lib/schemas/api";
+import { STATES } from "@/lib/constants";
+import { API_BASE_URL } from "@/lib/env";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,42 +20,13 @@ import {
 } from "@/components/ui/table";
 import { useSSE } from "@/hooks/use-sse";
 
-interface ScrapeJobResponse {
-  id: string;
-  state_code: string;
-  status: string;
-  job_type: string;
-  documents_found: number;
-  documents_downloaded: number;
-  documents_processed: number;
-  documents_failed: number;
-  started_at: string | null;
-  finished_at: string | null;
-  created_at: string;
-  errors: unknown[];
-  total_documents: number;
-}
-
 interface PaginatedJobs {
-  items: ScrapeJobResponse[];
+  items: ScrapeJob[];
   total: number;
   page: number;
   page_size: number;
   total_pages: number;
 }
-
-const STATES = [
-  { code: "TX", name: "Texas", tier: 1 },
-  { code: "NM", name: "New Mexico", tier: 1 },
-  { code: "ND", name: "North Dakota", tier: 1 },
-  { code: "OK", name: "Oklahoma", tier: 1 },
-  { code: "CO", name: "Colorado", tier: 1 },
-  { code: "WY", name: "Wyoming", tier: 2 },
-  { code: "LA", name: "Louisiana", tier: 2 },
-  { code: "PA", name: "Pennsylvania", tier: 2 },
-  { code: "CA", name: "California", tier: 2 },
-  { code: "AK", name: "Alaska", tier: 2 },
-];
 
 function statusBadgeVariant(
   status: string
@@ -75,7 +49,7 @@ export default function ScrapePage() {
   const [lastError, setLastError] = useState<string | null>(null);
 
   const sseUrl = activeJobId
-    ? `http://localhost:8000/api/v1/scrape/jobs/${activeJobId}/events`
+    ? `${API_BASE_URL}/api/v1/scrape/jobs/${activeJobId}/events`
     : null;
   const { data: progress } = useSSE(sseUrl);
 
@@ -99,7 +73,7 @@ export default function ScrapePage() {
     setScraping(stateCode);
     setLastError(null);
     try {
-      const job = await api.post<ScrapeJobResponse>("/scrape/", {
+      const job = await api.post<ScrapeJob>("/scrape/", {
         state_code: stateCode,
       });
       setActiveJobId(job.id);

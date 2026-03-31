@@ -9,19 +9,9 @@ import {
   useMapEvents,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-
-const API_BASE = "http://localhost:8000";
-
-interface WellPin {
-  id: string;
-  api_number: string;
-  well_name: string;
-  operator_name: string | null;
-  latitude: number;
-  longitude: number;
-  well_status: string | null;
-  well_type: string | null;
-}
+import type { WellMapPoint } from "@/lib/schemas/api";
+import { STATUS_COLORS } from "@/lib/constants";
+import { API_BASE_URL } from "@/lib/env";
 
 interface Bounds {
   min_lat: number;
@@ -29,17 +19,6 @@ interface Bounds {
   min_lng: number;
   max_lng: number;
 }
-
-const STATUS_COLORS: Record<string, string> = {
-  active: "#22c55e",
-  drilling: "#3b82f6",
-  completed: "#06b6d4",
-  plugged: "#ef4444",
-  inactive: "#f59e0b",
-  shut_in: "#8b5cf6",
-  permitted: "#a855f7",
-  unknown: "#9ca3af",
-};
 
 function getColor(status: string | null): string {
   return STATUS_COLORS[(status || "unknown").toLowerCase()] || "#9ca3af";
@@ -65,7 +44,7 @@ function MapEvents({
 }
 
 export default function MapView() {
-  const [wells, setWells] = useState<WellPin[]>([]);
+  const [wells, setWells] = useState<WellMapPoint[]>([]);
   const [loading, setLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState("");
 
@@ -81,7 +60,7 @@ export default function MapView() {
           limit: "2000",
         });
         if (statusFilter) params.set("well_status", statusFilter);
-        const res = await fetch(`${API_BASE}/api/v1/map/wells?${params}`);
+        const res = await fetch(`${API_BASE_URL}/api/v1/map/wells?${params}`);
         if (res.ok) {
           const data = await res.json();
           setWells(Array.isArray(data) ? data : []);

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import useSWR from "swr";
 import { fetcher } from "@/lib/api";
+import type { DocumentSummary } from "@/lib/schemas/api";
+import { STATE_CODES, DOC_TYPES, CONFIDENCE_RANGES } from "@/lib/constants";
 import {
   Table,
   TableBody,
@@ -15,20 +17,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
-interface DocSummary {
-  id: string;
-  well_id: string | null;
-  state_code: string;
-  doc_type: string | null;
-  document_date: string | null;
-  confidence_score: number | null;
-  file_format: string | null;
-  source_url: string;
-  scraped_at: string | null;
-}
-
 interface PaginatedDocs {
-  items: DocSummary[];
+  items: DocumentSummary[];
   total: number;
   page: number;
   page_size: number;
@@ -43,22 +33,6 @@ function confidenceColor(score: number) {
   return "bg-red-500/10 text-red-700 border-red-200";
 }
 
-const ALL_STATES = ["TX", "NM", "ND", "OK", "CO", "WY", "LA", "PA", "CA", "AK"];
-const DOC_TYPES = [
-  "well_permit",
-  "completion_report",
-  "production_report",
-  "spacing_order",
-  "plugging_report",
-  "inspection_record",
-  "incident_report",
-];
-const CONFIDENCE_RANGES = [
-  { label: "All", min: "", max: "" },
-  { label: "High (≥85%)", min: "0.85", max: "" },
-  { label: "Medium (50-84%)", min: "0.50", max: "0.84" },
-  { label: "Low (<50%)", min: "", max: "0.49" },
-];
 
 export default function DocumentsPage() {
   const [stateFilter, setStateFilter] = useState("");
@@ -77,8 +51,8 @@ export default function DocumentsPage() {
   if (stateFilter) params.set("state", stateFilter);
   if (docType) params.set("doc_type", docType);
   const range = CONFIDENCE_RANGES[confRange];
-  if (range.min) params.set("min_confidence", range.min);
-  if (range.max) params.set("max_confidence", range.max);
+  if (range.min != null) params.set("min_confidence", String(range.min));
+  if (range.max != null) params.set("max_confidence", String(range.max));
 
   const { data, isLoading } = useSWR<PaginatedDocs>(
     `/api/v1/documents?${params}`,
@@ -112,7 +86,7 @@ export default function DocumentsPage() {
           className="rounded-md border px-3 py-2 text-sm"
         >
           <option value="">All States</option>
-          {ALL_STATES.map((s) => (
+          {STATE_CODES.map((s) => (
             <option key={s} value={s}>
               {s}
             </option>

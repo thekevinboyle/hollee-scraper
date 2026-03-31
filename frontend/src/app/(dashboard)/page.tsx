@@ -2,6 +2,7 @@
 
 import useSWR from "swr";
 import { fetcher } from "@/lib/api";
+import type { DashboardStats } from "@/lib/schemas/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FileText, MapPin, AlertCircle, BarChart3 } from "lucide-react";
@@ -16,26 +17,6 @@ import {
   Pie,
   Cell,
 } from "recharts";
-
-interface DashboardStats {
-  total_wells: number;
-  total_documents: number;
-  total_extracted: number;
-  review_queue_pending: number;
-  avg_confidence: number | null;
-  documents_by_state: Record<string, number>;
-  documents_by_type: Record<string, number>;
-  wells_by_state: Record<string, number>;
-  wells_by_status: Record<string, number>;
-  recent_scrape_jobs: Array<{
-    id: string;
-    state_code: string;
-    status: string;
-    documents_found: number;
-    documents_processed: number;
-    created_at: string;
-  }>;
-}
 
 const PIE_COLORS = [
   "#3b82f6",

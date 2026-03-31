@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import { fetcher } from "@/lib/api";
 import { useDebounce } from "@/hooks/use-debounce";
+import type { WellSummary, WellDetail } from "@/lib/schemas/api";
+import { STATE_CODES, WELL_STATUSES } from "@/lib/constants";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -24,52 +26,6 @@ import {
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-interface WellSummary {
-  id: string;
-  api_number: string;
-  well_name: string;
-  operator_name: string | null;
-  state_code: string;
-  county: string | null;
-  well_status: string;
-  well_type: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  document_count: number;
-}
-
-interface WellDetail {
-  id: string;
-  api_number: string;
-  api_10: string | null;
-  well_name: string;
-  well_number: string | null;
-  operator_name: string | null;
-  state_code: string;
-  county: string | null;
-  basin: string | null;
-  field_name: string | null;
-  lease_name: string | null;
-  well_status: string;
-  well_type: string | null;
-  latitude: number | null;
-  longitude: number | null;
-  spud_date: string | null;
-  completion_date: string | null;
-  total_depth: number | null;
-  true_vertical_depth: number | null;
-  lateral_length: number | null;
-  metadata: Record<string, unknown>;
-  alternate_ids: Record<string, string>;
-  documents: Array<{
-    id: string;
-    doc_type: string;
-    status: string;
-    confidence_score: number | null;
-    source_url: string;
-  }>;
-}
 
 interface PaginatedWells {
   items: WellSummary[];
@@ -94,8 +50,6 @@ function confidenceColor(score: number) {
   return "text-red-700";
 }
 
-const ALL_STATES = ["TX", "NM", "ND", "OK", "CO", "WY", "LA", "PA", "CA", "AK"];
-const WELL_STATUSES = ["active", "inactive", "plugged", "permitted", "drilling", "completed", "shut_in", "unknown"];
 
 export default function WellsPage() {
   const urlParams = useSearchParams();
@@ -163,7 +117,7 @@ export default function WellsPage() {
         />
         <select value={stateFilter} onChange={(e) => { setStateFilter(e.target.value); setPage(1); }} className="rounded-md border px-3 py-2 text-sm">
           <option value="">All States</option>
-          {ALL_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+          {STATE_CODES.map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
         <select value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }} className="rounded-md border px-3 py-2 text-sm">
           <option value="">All Statuses</option>
