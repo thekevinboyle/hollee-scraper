@@ -65,7 +65,7 @@
 
 | Task | Title | Status | Branch | Date | Notes |
 |------|-------|--------|--------|------|-------|
-| 5.1 | Frontend Foundation & Layout | pending | | | |
+| 5.1 | Frontend Foundation & Layout | done | task/5-1-frontend-foundation | 2026-03-30 | shadcn/ui, sidebar, API client, types |
 | 5.2 | Search & Browse Interface | pending | | | |
 | 5.3 | Interactive Map | pending | | | |
 | 5.4 | Scrape Trigger & Progress | pending | | | |
