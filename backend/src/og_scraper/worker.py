@@ -19,3 +19,6 @@ huey_app = SqliteHuey(
     "og-scraper",
     filename=settings.huey_db_path,
 )
+
+# Import tasks so they are registered with the Huey instance
+import og_scraper.tasks.scrape_task  # noqa: E402, F401
