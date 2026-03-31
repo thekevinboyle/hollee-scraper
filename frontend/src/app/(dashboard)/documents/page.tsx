@@ -230,15 +230,23 @@ export default function DocumentsPage() {
                   <TableCell className="text-xs">
                     {doc.file_format || "--"}
                   </TableCell>
-                  <TableCell className="max-w-[200px] truncate text-xs">
-                    <a
-                      href={doc.source_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline"
-                    >
-                      {doc.source_url.split("/").pop() || doc.source_url}
-                    </a>
+                  <TableCell className="max-w-[250px] truncate text-xs">
+                    {doc.source_url.startsWith("http") ? (
+                      <a
+                        href={doc.source_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                        title={doc.source_url}
+                      >
+                        {new URL(doc.source_url).hostname}
+                        {new URL(doc.source_url).pathname.length > 1
+                          ? new URL(doc.source_url).pathname.slice(0, 30) + "..."
+                          : ""}
+                      </a>
+                    ) : (
+                      <span className="text-muted-foreground">{doc.source_url}</span>
+                    )}
                   </TableCell>
                   <TableCell className="text-xs">
                     {doc.scraped_at
