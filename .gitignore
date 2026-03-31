@@ -46,6 +46,8 @@ paddleocr_models/
 .coverage
 htmlcov/
 cassettes/
+playwright-report/
+test-results/
 
 # Logs
 *.log

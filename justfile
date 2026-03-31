@@ -83,3 +83,27 @@ install:
 # Install frontend dependencies locally (outside Docker)
 install-frontend:
     cd frontend && npm install
+
+# Run backend E2E tests (pipeline, API, error handling, performance)
+test-e2e *args='':
+    cd backend && uv run pytest tests/e2e/ -v {{args}}
+
+# Run Playwright E2E tests (requires frontend + backend running)
+test-e2e-dashboard:
+    cd frontend && npx playwright test --reporter=html
+
+# Run a specific Playwright test file
+test-e2e-dashboard-file file:
+    cd frontend && npx playwright test e2e/{{file}}
+
+# View Playwright HTML report
+test-e2e-report:
+    cd frontend && npx playwright show-report
+
+# Run Docker smoke test
+smoke-test:
+    bash scripts/docker-smoke-test.sh
+
+# Run full test suite (unit + integration + e2e)
+test-all:
+    cd backend && uv run pytest -v
