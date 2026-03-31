@@ -20,5 +20,11 @@ huey_app = SqliteHuey(
     filename=settings.huey_db_path,
 )
 
-# Import tasks so they are registered with the Huey instance
-import og_scraper.tasks.scrape_task  # noqa: E402, F401
+
+def register_tasks():
+    """Import task modules to register them with Huey. Called after module init."""
+    import og_scraper.tasks.scrape_task  # noqa: F401
+
+
+# Register tasks - this runs after huey_app is fully initialized
+register_tasks()
